@@ -19,7 +19,7 @@ sidebar <- dashboardSidebar(
 
 
 body <- dashboardBody(
-  
+  ribbon_css("https://github.com/delabj/covid19_dashboard", color = "black", font_color = "white", border_color = "white", parent_css =  list(top = "50px", "z-index" = "10")), 
   
   shinyDashboardThemes(
     theme = "grey_dark"

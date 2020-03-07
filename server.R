@@ -1,10 +1,13 @@
+library(shiny)
+library(shinydashboard)
+library(dashboardthemes)
+library(gitlink)
 library(tidyverse)
 library(leaflet)
 library(viridis)
 library(htmltools)
 library(lubridate)
 library(ggtext)
-
 
 # Pull the data on load
 confirmed_cases_covid19 <- readr::read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv")
@@ -30,33 +33,34 @@ covid19_df <- confirmed_long %>%
 rm(confirmed_long, death_long, recoveries_long, confirmed_cases_covid19, deaths_covid19, recoveries_covid19)
 
 
-covid19_df %>%
-  select(date, count_confirmed, count_recovered, count_dead)%>%
-  group_by(date)%>%
-  mutate(new_count_recovered =count_recovered- lag(count_recovered) )%>%
-  mutate(new_count_dead =count_dead- lag(count_dead) )%>%
-  na.omit() %>%
-  summarise(count_confirmed= sum(count_confirmed), 
-            new_count_recovered=sum(new_count_recovered), 
-            count_remaining= sum(count_confirmed) - sum(count_recovered)) %>%
-  ggplot(aes())+
-  geom_line(aes(x = date, y= count_confirmed), color = "#0073B7" )+
-  geom_point(aes(x = date, y= count_confirmed), color = "#0073B7" )+
-  geom_line(aes(x = date, y= new_count_recovered), color = "#3D9970" )+
-  geom_point(aes(x = date, y= new_count_recovered), color = "#3D9970" )+
-  geom_line(aes(x = date, y= count_remaining), color = "#DD4B39" )+
-  geom_point(aes(x = date, y= count_remaining), color = "#DD4B39" )
-
+# covid19_df %>%
+#   select(date, count_confirmed, count_recovered, count_dead)%>%
+#   group_by(date)%>%
+#   mutate(new_count_recovered =count_recovered- lag(count_recovered) )%>%
+#   mutate(new_count_dead =count_dead- lag(count_dead) )%>%
+#   na.omit() %>%
+#   summarise(count_confirmed= sum(count_confirmed), 
+#             new_count_recovered=sum(new_count_recovered), 
+#             count_remaining= sum(count_confirmed) - sum(count_recovered)) %>%
+#   ggplot(aes())+
+#   geom_line(aes(x = date, y= count_confirmed), color = "#0073B7" )+
+#   geom_point(aes(x = date, y= count_confirmed), color = "#0073B7" )+
+#   geom_line(aes(x = date, y= new_count_recovered), color = "#3D9970" )+
+#   geom_point(aes(x = date, y= new_count_recovered), color = "#3D9970" )+
+#   geom_line(aes(x = date, y= count_remaining), color = "#DD4B39" )+
+#   geom_point(aes(x = date, y= count_remaining), color = "#DD4B39" )
+# 
 
 server <- function(input, output) {
   
   
-  output$value_recovered <- renderValueBox({
+  output$value_recovered <- shinydashboard::renderValueBox({
     req(input$date_to_map)
     
     recovered <- covid19_df %>%
       filter(date <= input$date_to_map) %>%
       group_by(`Province/State`) %>%
+      na.omit(count_confirmed)%>%
       summarise(recovered = max(count_recovered))
       
     
@@ -73,6 +77,7 @@ server <- function(input, output) {
     dead <- covid19_df %>%
       filter(date <= input$date_to_map) %>%
       group_by(`Province/State`) %>%
+      na.omit(count_confirmed)%>%
       summarise(dead = max(count_dead))
     
     
@@ -91,6 +96,7 @@ server <- function(input, output) {
     active <- covid19_df %>%
       filter(date <= input$date_to_map) %>%
       group_by(`Province/State`) %>%
+      na.omit(count_confirmed)%>%
       summarise(active = max(count))
     
     
@@ -108,6 +114,7 @@ server <- function(input, output) {
     total <- covid19_df %>%
       filter(date <= input$date_to_map) %>%
       group_by(`Province/State`) %>%
+      na.omit(count_confirmed)%>%
       summarise(total = max(count_confirmed))
     
     

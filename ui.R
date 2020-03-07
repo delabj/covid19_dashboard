@@ -2,6 +2,12 @@ library(shiny)
 library(shinydashboard)
 library(dashboardthemes)
 library(gitlink)
+library(tidyverse)
+library(leaflet)
+library(viridis)
+library(htmltools)
+library(lubridate)
+library(ggtext)
 
 
 ## ui.R ##
@@ -10,6 +16,7 @@ sidebar <- dashboardSidebar(
     menuItem("Dashboard", tabName = "dashboard", icon = icon("dashboard")), 
     box(
       a("Data: Johns Hopkins CSSE", href="https://github.com/CSSEGISandData/COVID-19"), 
+      br(),
       a("Code: @delabj", href="http://twitter.com/delabj")
     )
    

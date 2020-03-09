@@ -193,7 +193,8 @@ server <- function(input, output) {
       labs(title = "<b>COVID-19</b> Count of Daily Change", 
            subtitle = "In <b style = 'color:#F39C12'> Newly Diagnosed</b> and 
        <b style = 'color:#3D9970'> Newly Recovered</b>", 
-           y="", x="")+
+           y="", x="",
+           caption = "Data JHU CSSE\nViz/Code @delabj")+
       scale_fill_manual(values = c("#F39C12", "#3D9970"))+
       guides(colour = guide_legend(override.aes = list(shape = 19)))+
       theme_minimal()+
@@ -203,7 +204,8 @@ server <- function(input, output) {
             panel.grid.minor = element_line(color = "#3f4b57", size = .25), 
             panel.grid.major = element_line(color = "#495866", size = .5), 
             axis.title = element_markdown(color="#D6D6D6"), 
-            axis.text = element_text(color="#D6D6D6")
+            axis.text = element_text(color="#D6D6D6"),
+            plot.caption = element_text(color="#D6D6D6")
             
       )+
       theme(plot.title = element_markdown(color = "#D6D6D6", lineheight = 2), 
@@ -235,7 +237,9 @@ server <- function(input, output) {
            subtitle = "Number of <b style='color:#0073B7'> Total Cases</b>,
        <b style='color:#F39C12'> Active Cases</b>, 
        <b style = 'color:#3D9970'> Recovered Cases</b>, and 
-       <b style = 'color:#DD4B39'> Deaths</b>")+
+       <b style = 'color:#DD4B39'> Deaths</b>", 
+           x="", y="",
+           caption = "Data JHU CSSE\nViz/Code @delabj")+
       theme_minimal()+
       theme(legend.position = "none",
             plot.title.position =  "plot", 
@@ -243,7 +247,8 @@ server <- function(input, output) {
             panel.grid.minor = element_line(color = "#3f4b57", size = .25), 
             panel.grid.major = element_line(color = "#495866", size = .5), 
             axis.title = element_markdown(color="#D6D6D6"), 
-            axis.text = element_text(color="#D6D6D6")
+            axis.text = element_text(color="#D6D6D6"), 
+            plot.caption = element_text(color="#D6D6D6")
             
       )+
       theme(plot.title = element_markdown(color = "#D6D6D6", lineheight = 2), 

@@ -33,35 +33,17 @@ covid19_df <- confirmed_long %>%
 rm(confirmed_long, death_long, recoveries_long, confirmed_cases_covid19, deaths_covid19, recoveries_covid19)
 
 
-# covid19_df %>%
-#   select(date, count_confirmed, count_recovered, count_dead)%>%
-#   group_by(date)%>%
-#   mutate(new_count_recovered =count_recovered- lag(count_recovered) )%>%
-#   mutate(new_count_dead =count_dead- lag(count_dead) )%>%
-#   na.omit() %>%
-#   summarise(count_confirmed= sum(count_confirmed), 
-#             new_count_recovered=sum(new_count_recovered), 
-#             count_remaining= sum(count_confirmed) - sum(count_recovered)) %>%
-#   ggplot(aes())+
-#   geom_line(aes(x = date, y= count_confirmed), color = "#0073B7" )+
-#   geom_point(aes(x = date, y= count_confirmed), color = "#0073B7" )+
-#   geom_line(aes(x = date, y= new_count_recovered), color = "#3D9970" )+
-#   geom_point(aes(x = date, y= new_count_recovered), color = "#3D9970" )+
-#   geom_line(aes(x = date, y= count_remaining), color = "#DD4B39" )+
-#   geom_point(aes(x = date, y= count_remaining), color = "#DD4B39" )
-# 
 
 server <- function(input, output) {
   
-  
+  # Number In box of those recovered.
   output$value_recovered <- shinydashboard::renderValueBox({
     req(input$date_to_map)
     
     recovered <- covid19_df %>%
-      filter(date <= input$date_to_map) %>%
-      group_by(`Province/State`) %>%
-      na.omit(count_confirmed)%>%
-      summarise(recovered = max(count_recovered))
+      filter(date == input$date_to_map) %>%
+      group_by(`Province/State`, `Country/Region`) %>%
+      summarise(recovered = max(count_recovered,na.rm = T))
       
     
     valueBox(
@@ -71,14 +53,14 @@ server <- function(input, output) {
     )
   })
   
+  # Big Number of Deaths
   output$value_deaths <- renderValueBox({
     req(input$date_to_map)
     
     dead <- covid19_df %>%
-      filter(date <= input$date_to_map) %>%
-      group_by(`Province/State`) %>%
-      na.omit(count_confirmed)%>%
-      summarise(dead = max(count_dead))
+      filter(date == input$date_to_map) %>%
+      group_by(`Province/State`, `Country/Region`) %>%
+      summarise(dead = max(count_dead, na.rm = T))
     
     
     valueBox(
@@ -89,15 +71,15 @@ server <- function(input, output) {
     )
   })
   
+  # Big Number Active Cases
   output$value_active_cases <- renderValueBox({
     req(input$date_to_map)
     
     
     active <- covid19_df %>%
-      filter(date <= input$date_to_map) %>%
-      group_by(`Province/State`) %>%
-      na.omit(count_confirmed)%>%
-      summarise(active = max(count))
+      filter(date == input$date_to_map) %>%
+      group_by(`Province/State`, `Country/Region`) %>%
+      summarise(active = max(count, na.rm = T))
     
     
     valueBox(
@@ -107,15 +89,15 @@ server <- function(input, output) {
       width = 4
     )
   })
+  
+  # Big number of total Cases
   output$value_total_cases <- renderUI({
     req(input$date_to_map)
     
     
     total <- covid19_df %>%
-      filter(date <= input$date_to_map) %>%
-      group_by(`Province/State`) %>%
-      na.omit(count_confirmed)%>%
-      summarise(total = max(count_confirmed))
+      group_by(`Province/State`, `Country/Region`) %>%
+      summarise(total = max(count_confirmed, na.rm = T))
     
     
     valueBox(

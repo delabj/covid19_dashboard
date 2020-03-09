@@ -33,6 +33,14 @@ body <- dashboardBody(
   ),
   tabItems(
     tabItem(tabName = "dashboard",
+            
+            tags$style(type="text/css", "#active_cases_map.recalculating { opacity: 1.0; }"),
+            tags$style(type="text/css", "#cum_cases_map.recalculating { opacity: 1.0; }"),
+            tags$style(type="text/css", "#daily_change_plot.recalculating { opacity: 1.0; }"),
+            tags$style(type="text/css", "#total_trends_plot.recalculating { opacity: 1.0; }"),
+            
+            
+            
             tags$style(type = "text/css", "#active_cases_map {height: calc(70vh - 80px) !important;}"),
             tags$style(type = "text/css", "#cum_cases_map {height: calc(70vh - 80px) !important;}"),
             tags$style(type = "text/css", "#daily_change_plot {height: calc(32vh - 40px) !important;}"),

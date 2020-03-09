@@ -96,6 +96,7 @@ server <- function(input, output) {
     
     
     total <- covid19_df %>%
+      filter(date == input$date_to_map) %>%
       group_by(`Province/State`, `Country/Region`) %>%
       summarise(total = max(count_confirmed, na.rm = T))
     

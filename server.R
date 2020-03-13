@@ -194,7 +194,7 @@ server <- function(input, output) {
            subtitle = "In <b style = 'color:#F39C12'> Newly Diagnosed</b> and 
        <b style = 'color:#3D9970'> Newly Recovered</b>", 
            y="", x="",
-           caption = "Data JHU CSSE\nViz/Code @delabj")+
+           caption = "Data JHU CSSE\nViz/Code @delabjl")+
       scale_fill_manual(values = c("#F39C12", "#3D9970"))+
       guides(colour = guide_legend(override.aes = list(shape = 19)))+
       theme_minimal()+
@@ -239,7 +239,7 @@ server <- function(input, output) {
        <b style = 'color:#3D9970'> Recovered Cases</b>, and 
        <b style = 'color:#DD4B39'> Deaths</b>", 
            x="", y="",
-           caption = "Data JHU CSSE\nViz/Code @delabj")+
+           caption = "Data JHU CSSE\nViz/Code @delabjL")+
       theme_minimal()+
       theme(legend.position = "none",
             plot.title.position =  "plot", 

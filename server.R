@@ -96,7 +96,6 @@ server <- function(input, output) {
     
     
     total <- covid19_df %>%
-      filter(date == input$date_to_map) %>%
       group_by(`Province/State`, `Country/Region`) %>%
       summarise(total = max(count_confirmed, na.rm = T))
     
@@ -183,7 +182,7 @@ server <- function(input, output) {
     covid19_df %>%
       mutate(count_new_cases = count_confirmed-lag(count_confirmed)) %>%
       mutate(count_new_recovered = count_recovered- lag(count_recovered))%>%
-      na.omit()%>%
+      drop_na(count_new_cases, count_new_recovered)%>%
       select(`Province/State`, `Country/Region`, Lat, Long, date, count_new_cases, count_new_recovered) %>%
       pivot_longer( -c(`Province/State`, `Country/Region`, Lat, Long, date), 
                     names_to = "status", values_to = "group_count") %>%
@@ -220,7 +219,7 @@ server <- function(input, output) {
       select(date, count_confirmed, count_recovered, count_dead)%>%
       filter(date <= input$date_to_map) %>%
       group_by(date)%>%
-      na.omit() %>%
+      drop_na(count_confirmed, date, count_recovered, count_dead) %>%
       summarise(count_remaining= sum(count_confirmed) - sum(count_recovered), 
                 count_recovered=sum(count_recovered), 
                 count_confirmed=sum(count_confirmed), 

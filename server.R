@@ -96,6 +96,7 @@ server <- function(input, output) {
     
     
     total <- covid19_df %>%
+      filter(date == input$date_to_map) %>%
       group_by(`Province/State`, `Country/Region`) %>%
       summarise(total = max(count_confirmed, na.rm = T))
     
@@ -113,7 +114,7 @@ server <- function(input, output) {
     
     date_selected = input$date_to_map
     
-    pal <- colorNumeric("magma", domain = log1p(covid19_df$count))
+    pal <- colorNumeric("magma", domain = log10(c(1, max(covid19_df$count))))
     
     
     
@@ -124,8 +125,8 @@ server <- function(input, output) {
       addCircleMarkers(
         lng = ~Long, 
         lat = ~Lat,
-        radius = ~(log1p(count)), 
-        color = ~pal(log1p(count)), 
+        radius = ~(log10(count)), 
+        color = ~pal(log10(count)), 
         stroke = FALSE, fillOpacity = 0.5
         
       )
@@ -144,21 +145,23 @@ server <- function(input, output) {
       mutate(cum_cases =  cumsum(count)) %>%
       ungroup
     
-    pal <- colorNumeric("magma", domain = log1p(df$cum_cases))
+    pal <- colorNumeric("magma", domain = log10(c(1, max(df$cum_cases))))
     
     
     map <- df %>%
       filter(date == date_selected) %>%
       leaflet() %>%
       addProviderTiles("CartoDB.DarkMatter") %>%
+      #addLegend(title = "cumulative Cases", pal=pal, value = ~df %>% filter(cum_cases >=1) %>% pull(cum_cases))%>%
       addCircleMarkers(
         lng = ~Long, 
         lat = ~Lat,
-        radius = ~(log1p(cum_cases)), 
-        color = ~pal(log1p(cum_cases)), 
+        radius = ~(log10(cum_cases)), 
+        color = ~pal(log10(cum_cases)), 
         stroke = FALSE, fillOpacity = 0.5,
-        popup = ~htmlEscape(`Province/State`)
+        popup = ~htmlEscape(`Province/State`) 
       )
+      
   })
   
   

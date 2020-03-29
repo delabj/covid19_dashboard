@@ -5,8 +5,8 @@ account: delabj
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 1916579
-bundleId: 2859931
+bundleId: 2862839
 url: https://delabj.shinyapps.io/covid19_dashboard/
-when: 1583597817.19131
+when: 1583722650.95287
 asMultiple: FALSE
 asStatic: FALSE

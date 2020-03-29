@@ -10,9 +10,9 @@ library(lubridate)
 library(ggtext)
 
 # Pull the data on load
-confirmed_cases_covid19 <- readr::read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv")
-deaths_covid19 <- readr::read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Deaths.csv")
-recoveries_covid19 <- readr::read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Recovered.csv")
+confirmed_cases_covid19 <- readr::read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv")
+deaths_covid19 <- readr::read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv")
+recoveries_covid19 <- readr::read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv")
 
 # make the data in a long format
 confirmed_long <- confirmed_cases_covid19 %>% 
@@ -26,7 +26,8 @@ recoveries_long <- recoveries_covid19 %>%
 covid19_df <- confirmed_long %>% 
   left_join(death_long) %>%
   left_join(recoveries_long)%>%
-  mutate(count = count_confirmed-count_dead-count_recovered)  %>%
+  na.omit() %>%
+  mutate(count = count_confirmed-(count_dead+count_recovered)) %>%
   mutate(date = as.Date(as.character(date), format = '%m/%d/%y'))
 
 # remove extra data frames for memory
@@ -58,10 +59,9 @@ server <- function(input, output) {
     req(input$date_to_map)
     
     recovered <- covid19_df %>%
-      filter(date <= input$date_to_map) %>%
+      filter(date == input$date_to_map) %>%
       group_by(`Province/State`) %>%
-      na.omit(count_confirmed)%>%
-      summarise(recovered = max(count_recovered))
+      summarise(recovered = max(count_recovered, na.rm = T))
       
     
     valueBox(
@@ -75,10 +75,9 @@ server <- function(input, output) {
     req(input$date_to_map)
     
     dead <- covid19_df %>%
-      filter(date <= input$date_to_map) %>%
+      filter(date == input$date_to_map) %>%
       group_by(`Province/State`) %>%
-      na.omit(count_confirmed)%>%
-      summarise(dead = max(count_dead))
+      summarise(dead = max(count_dead, na.rm = T))
     
     
     valueBox(
@@ -94,10 +93,9 @@ server <- function(input, output) {
     
     
     active <- covid19_df %>%
-      filter(date <= input$date_to_map) %>%
+      filter(date == input$date_to_map) %>%
       group_by(`Province/State`) %>%
-      na.omit(count_confirmed)%>%
-      summarise(active = max(count))
+      summarise(active = max(count, na.rm = T))
     
     
     valueBox(
@@ -112,10 +110,9 @@ server <- function(input, output) {
     
     
     total <- covid19_df %>%
-      filter(date <= input$date_to_map) %>%
+      filter(date == input$date_to_map) %>%
       group_by(`Province/State`) %>%
-      na.omit(count_confirmed)%>%
-      summarise(total = max(count_confirmed))
+      summarise(total = max(count_confirmed, na.rm = T))
     
     
     valueBox(

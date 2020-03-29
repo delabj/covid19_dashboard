@@ -26,13 +26,21 @@ sidebar <- dashboardSidebar(
 
 
 body <- dashboardBody(
-  
+  ribbon_css("https://github.com/delabj/covid19_dashboard", color = "black", font_color = "white", border_color = "white", parent_css =  list(top = "50px", "z-index" = "10")), 
   
   shinyDashboardThemes(
     theme = "grey_dark"
   ),
   tabItems(
     tabItem(tabName = "dashboard",
+            
+            tags$style(type="text/css", "#active_cases_map.recalculating { opacity: 1.0; }"),
+            tags$style(type="text/css", "#cum_cases_map.recalculating { opacity: 1.0; }"),
+            tags$style(type="text/css", "#daily_change_plot.recalculating { opacity: 1.0; }"),
+            tags$style(type="text/css", "#total_trends_plot.recalculating { opacity: 1.0; }"),
+            
+            
+            
             tags$style(type = "text/css", "#active_cases_map {height: calc(70vh - 80px) !important;}"),
             tags$style(type = "text/css", "#cum_cases_map {height: calc(70vh - 80px) !important;}"),
             tags$style(type = "text/css", "#daily_change_plot {height: calc(32vh - 40px) !important;}"),

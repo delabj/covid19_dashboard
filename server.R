@@ -34,34 +34,22 @@ covid19_df <- confirmed_long %>%
 rm(confirmed_long, death_long, recoveries_long, confirmed_cases_covid19, deaths_covid19, recoveries_covid19)
 
 
-# covid19_df %>%
-#   select(date, count_confirmed, count_recovered, count_dead)%>%
-#   group_by(date)%>%
-#   mutate(new_count_recovered =count_recovered- lag(count_recovered) )%>%
-#   mutate(new_count_dead =count_dead- lag(count_dead) )%>%
-#   na.omit() %>%
-#   summarise(count_confirmed= sum(count_confirmed), 
-#             new_count_recovered=sum(new_count_recovered), 
-#             count_remaining= sum(count_confirmed) - sum(count_recovered)) %>%
-#   ggplot(aes())+
-#   geom_line(aes(x = date, y= count_confirmed), color = "#0073B7" )+
-#   geom_point(aes(x = date, y= count_confirmed), color = "#0073B7" )+
-#   geom_line(aes(x = date, y= new_count_recovered), color = "#3D9970" )+
-#   geom_point(aes(x = date, y= new_count_recovered), color = "#3D9970" )+
-#   geom_line(aes(x = date, y= count_remaining), color = "#DD4B39" )+
-#   geom_point(aes(x = date, y= count_remaining), color = "#DD4B39" )
-# 
 
 server <- function(input, output) {
   
-  
+  # Number In box of those recovered.
   output$value_recovered <- shinydashboard::renderValueBox({
     req(input$date_to_map)
     
     recovered <- covid19_df %>%
       filter(date == input$date_to_map) %>%
+<<<<<<< HEAD
       group_by(`Province/State`) %>%
       summarise(recovered = max(count_recovered, na.rm = T))
+=======
+      group_by(`Province/State`, `Country/Region`) %>%
+      summarise(recovered = max(count_recovered,na.rm = T))
+>>>>>>> 622937a4fa67439c420f60560cce7d1eb97af9cc
       
     
     valueBox(
@@ -71,12 +59,17 @@ server <- function(input, output) {
     )
   })
   
+  # Big Number of Deaths
   output$value_deaths <- renderValueBox({
     req(input$date_to_map)
     
     dead <- covid19_df %>%
       filter(date == input$date_to_map) %>%
+<<<<<<< HEAD
       group_by(`Province/State`) %>%
+=======
+      group_by(`Province/State`, `Country/Region`) %>%
+>>>>>>> 622937a4fa67439c420f60560cce7d1eb97af9cc
       summarise(dead = max(count_dead, na.rm = T))
     
     
@@ -88,13 +81,18 @@ server <- function(input, output) {
     )
   })
   
+  # Big Number Active Cases
   output$value_active_cases <- renderValueBox({
     req(input$date_to_map)
     
     
     active <- covid19_df %>%
       filter(date == input$date_to_map) %>%
+<<<<<<< HEAD
       group_by(`Province/State`) %>%
+=======
+      group_by(`Province/State`, `Country/Region`) %>%
+>>>>>>> 622937a4fa67439c420f60560cce7d1eb97af9cc
       summarise(active = max(count, na.rm = T))
     
     
@@ -105,13 +103,19 @@ server <- function(input, output) {
       width = 4
     )
   })
+  
+  # Big number of total Cases
   output$value_total_cases <- renderUI({
     req(input$date_to_map)
     
     
     total <- covid19_df %>%
       filter(date == input$date_to_map) %>%
+<<<<<<< HEAD
       group_by(`Province/State`) %>%
+=======
+      group_by(`Province/State`, `Country/Region`) %>%
+>>>>>>> 622937a4fa67439c420f60560cce7d1eb97af9cc
       summarise(total = max(count_confirmed, na.rm = T))
     
     
@@ -128,7 +132,7 @@ server <- function(input, output) {
     
     date_selected = input$date_to_map
     
-    pal <- colorNumeric("magma", domain = log1p(covid19_df$count))
+    pal <- colorNumeric("magma", domain = log10(c(1, max(covid19_df$count))))
     
     
     
@@ -139,8 +143,8 @@ server <- function(input, output) {
       addCircleMarkers(
         lng = ~Long, 
         lat = ~Lat,
-        radius = ~(log1p(count)), 
-        color = ~pal(log1p(count)), 
+        radius = ~(log10(count)), 
+        color = ~pal(log10(count)), 
         stroke = FALSE, fillOpacity = 0.5
         
       )
@@ -159,21 +163,23 @@ server <- function(input, output) {
       mutate(cum_cases =  cumsum(count)) %>%
       ungroup
     
-    pal <- colorNumeric("magma", domain = log1p(df$cum_cases))
+    pal <- colorNumeric("magma", domain = log10(c(1, max(df$cum_cases))))
     
     
     map <- df %>%
       filter(date == date_selected) %>%
       leaflet() %>%
       addProviderTiles("CartoDB.DarkMatter") %>%
+      #addLegend(title = "cumulative Cases", pal=pal, value = ~df %>% filter(cum_cases >=1) %>% pull(cum_cases))%>%
       addCircleMarkers(
         lng = ~Long, 
         lat = ~Lat,
-        radius = ~(log1p(cum_cases)), 
-        color = ~pal(log1p(cum_cases)), 
+        radius = ~(log10(cum_cases)), 
+        color = ~pal(log10(cum_cases)), 
         stroke = FALSE, fillOpacity = 0.5,
-        popup = ~htmlEscape(`Province/State`)
+        popup = ~htmlEscape(`Province/State`) 
       )
+      
   })
   
   
@@ -197,7 +203,7 @@ server <- function(input, output) {
     covid19_df %>%
       mutate(count_new_cases = count_confirmed-lag(count_confirmed)) %>%
       mutate(count_new_recovered = count_recovered- lag(count_recovered))%>%
-      na.omit()%>%
+      drop_na(count_new_cases, count_new_recovered)%>%
       select(`Province/State`, `Country/Region`, Lat, Long, date, count_new_cases, count_new_recovered) %>%
       pivot_longer( -c(`Province/State`, `Country/Region`, Lat, Long, date), 
                     names_to = "status", values_to = "group_count") %>%
@@ -208,7 +214,8 @@ server <- function(input, output) {
       labs(title = "<b>COVID-19</b> Count of Daily Change", 
            subtitle = "In <b style = 'color:#F39C12'> Newly Diagnosed</b> and 
        <b style = 'color:#3D9970'> Newly Recovered</b>", 
-           y="", x="")+
+           y="", x="",
+           caption = "Data JHU CSSE\nViz/Code @delabjl")+
       scale_fill_manual(values = c("#F39C12", "#3D9970"))+
       guides(colour = guide_legend(override.aes = list(shape = 19)))+
       theme_minimal()+
@@ -218,7 +225,8 @@ server <- function(input, output) {
             panel.grid.minor = element_line(color = "#3f4b57", size = .25), 
             panel.grid.major = element_line(color = "#495866", size = .5), 
             axis.title = element_markdown(color="#D6D6D6"), 
-            axis.text = element_text(color="#D6D6D6")
+            axis.text = element_text(color="#D6D6D6"),
+            plot.caption = element_text(color="#D6D6D6")
             
       )+
       theme(plot.title = element_markdown(color = "#D6D6D6", lineheight = 2), 
@@ -232,7 +240,7 @@ server <- function(input, output) {
       select(date, count_confirmed, count_recovered, count_dead)%>%
       filter(date <= input$date_to_map) %>%
       group_by(date)%>%
-      na.omit() %>%
+      drop_na(count_confirmed, date, count_recovered, count_dead) %>%
       summarise(count_remaining= sum(count_confirmed) - sum(count_recovered), 
                 count_recovered=sum(count_recovered), 
                 count_confirmed=sum(count_confirmed), 
@@ -250,7 +258,9 @@ server <- function(input, output) {
            subtitle = "Number of <b style='color:#0073B7'> Total Cases</b>,
        <b style='color:#F39C12'> Active Cases</b>, 
        <b style = 'color:#3D9970'> Recovered Cases</b>, and 
-       <b style = 'color:#DD4B39'> Deaths</b>")+
+       <b style = 'color:#DD4B39'> Deaths</b>", 
+           x="", y="",
+           caption = "Data JHU CSSE\nViz/Code @delabjL")+
       theme_minimal()+
       theme(legend.position = "none",
             plot.title.position =  "plot", 
@@ -258,7 +268,8 @@ server <- function(input, output) {
             panel.grid.minor = element_line(color = "#3f4b57", size = .25), 
             panel.grid.major = element_line(color = "#495866", size = .5), 
             axis.title = element_markdown(color="#D6D6D6"), 
-            axis.text = element_text(color="#D6D6D6")
+            axis.text = element_text(color="#D6D6D6"), 
+            plot.caption = element_text(color="#D6D6D6")
             
       )+
       theme(plot.title = element_markdown(color = "#D6D6D6", lineheight = 2), 

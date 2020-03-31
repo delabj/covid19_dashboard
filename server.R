@@ -10,17 +10,37 @@ library(lubridate)
 library(ggtext)
 
 # Pull the data on load
-confirmed_cases_covid19 <- readr::read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv")
-deaths_covid19 <- readr::read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv")
-recoveries_covid19 <- readr::read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv")
+confirmed_cases_covid19_world <- readr::read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv")
+deaths_covid19_world <- readr::read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv")
+recoveries_covid19_world <- readr::read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv")
+
+
+####
+
+confirmed_cases_covid19_US <- readr::read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_US.csv")
+deaths_covid19_US <- readr::read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_US.csv")
+
+# confirmed_cases_covid19_US %>%
+#   select(-c("UID" ,"iso2","iso3","code3", "FIPS","Admin2",Combined_Key  )) %>%
+#   rbind(confirmed_cases_covid19_world)
+
+
 
 # make the data in a long format
-confirmed_long <- confirmed_cases_covid19 %>% 
+confirmed_long <- confirmed_cases_covid19_world %>% 
   pivot_longer( -c(`Province/State`, `Country/Region`, Lat, Long), names_to = "date", values_to = "count_confirmed")
-death_long <- deaths_covid19 %>% 
+
+
+death_long <- deaths_covid19_world %>% 
   pivot_longer( -c(`Province/State`, `Country/Region`, Lat, Long), names_to = "date", values_to = "count_dead")
-recoveries_long <- recoveries_covid19 %>% 
+
+
+
+recoveries_long <- recoveries_covid19_world %>% 
   pivot_longer( -c(`Province/State`, `Country/Region`, Lat, Long), names_to = "date", values_to = "count_recovered")
+
+
+
 
 #merge into a single data frame
 covid19_df <- confirmed_long %>% 
@@ -43,14 +63,9 @@ server <- function(input, output) {
     
     recovered <- covid19_df %>%
       filter(date == input$date_to_map) %>%
-<<<<<<< HEAD
-      group_by(`Province/State`) %>%
-      summarise(recovered = max(count_recovered, na.rm = T))
-=======
       group_by(`Province/State`, `Country/Region`) %>%
       summarise(recovered = max(count_recovered,na.rm = T))
->>>>>>> 622937a4fa67439c420f60560cce7d1eb97af9cc
-      
+
     
     valueBox(
       value = prettyNum(sum(recovered$recovered),big.mark = ',') , 
@@ -65,11 +80,9 @@ server <- function(input, output) {
     
     dead <- covid19_df %>%
       filter(date == input$date_to_map) %>%
-<<<<<<< HEAD
+
       group_by(`Province/State`) %>%
-=======
-      group_by(`Province/State`, `Country/Region`) %>%
->>>>>>> 622937a4fa67439c420f60560cce7d1eb97af9cc
+
       summarise(dead = max(count_dead, na.rm = T))
     
     
@@ -88,11 +101,8 @@ server <- function(input, output) {
     
     active <- covid19_df %>%
       filter(date == input$date_to_map) %>%
-<<<<<<< HEAD
-      group_by(`Province/State`) %>%
-=======
+
       group_by(`Province/State`, `Country/Region`) %>%
->>>>>>> 622937a4fa67439c420f60560cce7d1eb97af9cc
       summarise(active = max(count, na.rm = T))
     
     
@@ -111,11 +121,8 @@ server <- function(input, output) {
     
     total <- covid19_df %>%
       filter(date == input$date_to_map) %>%
-<<<<<<< HEAD
-      group_by(`Province/State`) %>%
-=======
+
       group_by(`Province/State`, `Country/Region`) %>%
->>>>>>> 622937a4fa67439c420f60560cce7d1eb97af9cc
       summarise(total = max(count_confirmed, na.rm = T))
     
     
